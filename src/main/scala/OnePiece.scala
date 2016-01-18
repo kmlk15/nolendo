@@ -29,7 +29,10 @@ object OnePiece {
           var line = br.readLine()
           while (line != null) {
             val spt = line.split(" ")
-            download(spt(1), spt(0) + ".mp4")
+            var succeed = download(spt(1), spt(0) + ".mp4")  
+            while (!succeed) {
+              succeed = download(spt(1), spt(0) + ".mp4")
+            }
             line = br.readLine()
           }
         } finally {
@@ -41,7 +44,7 @@ object OnePiece {
     
   }
 
-  def download(id: String, fn: String) {
+  def download(id: String, fn: String): Boolean = {
     println("Downloading: " + fn)
     
     val httpclient = HttpClients.createDefault()
@@ -60,13 +63,14 @@ object OnePiece {
         val file = new File(fn)
         val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
       })
-
+      println("Download Completed")
+      true
+    } catch {
+      case e: Exception => false
     } finally {
       response.close
       IOUtils.closeQuietly(httpclient)
     }
-    
-    println("Download Completed")
   }
   
   class FileDownloadResponseHandler(target: File) extends ResponseHandler[File] {
