@@ -4,15 +4,41 @@ import java.io.StringWriter
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
+import java.io.BufferedInputStream
+import org.apache.http.client.ResponseHandler
+import org.apache.http.HttpResponse
+import org.apache.commons.io.FileUtils
+import java.io.FileInputStream
+import java.io.InputStreamReader
+import java.io.BufferedReader
+import scala.collection.JavaConversions
+
+// File List is at : http://www.ktkkt.com/playdata/75/331.js?54924.7
 
 object OnePiece {
 
   def main(args: Array[String]) {
 
-    val id = args(0)
+    args.length match {
+      case 2 => download(args(0), args(1))
+      case _ => 
+        val fis = new FileInputStream("list")
+        val isr = new InputStreamReader(fis, "UTF-8")
+        val br = new BufferedReader(isr) 
+        var line = br.readLine()
+        while (line != null) {
+          val spt = line.split(" ")
+          download(spt(1), spt(0) + ".mp4")
+          line = br.readLine()
+        }
+    }
+    
+  }
+
+  def download(id: String, fn: String) {
+    println("Downloading: " + fn)
     
     val httpclient = HttpClients.createDefault()
-    //val httpget = new HttpGet("http://dmdata.leyingtuan.com/mobileapp/ckplayer65/video.php?url=" + id + "_tudou")
     val httpget = new HttpGet("http://api.ktkkt.com/tyyp.php?v=" + id + "&t=ck")
     val response = httpclient.execute(httpget)
 
@@ -24,25 +50,24 @@ object OnePiece {
 
       (xml \ "video").foreach(video => {
         val f = (video \ "file").text
-
         val fileGet = new HttpGet(f);
-        val fileResponse = httpclient.execute(fileGet)
-        try {
-          val fileEntity = fileResponse.getEntity()
-          if (fileEntity != null) {
-            val file = new File(id + ".flv")
-            val outputStream = new FileOutputStream(file)
-            val inputStream = fileEntity.getContent()
-            IOUtils.copy(inputStream, outputStream)
-            outputStream.close
-          }
-        } finally {
-          fileResponse.close
-        }
+        val file = new File(fn)
+        val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
       })
 
     } finally {
-      response.close()
+      response.close
+      IOUtils.closeQuietly(httpclient)
     }
+    
+    println("Download Completed")
+  }
+  
+  class FileDownloadResponseHandler(target: File) extends ResponseHandler[File] {
+    override def handleResponse(response: HttpResponse) = {
+      FileUtils.copyInputStreamToFile(response.getEntity.getContent, target)
+      
+      target
+    } 
   }
 }
