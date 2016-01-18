@@ -25,11 +25,17 @@ object OnePiece {
         val fis = new FileInputStream("list")
         val isr = new InputStreamReader(fis, "UTF-8")
         val br = new BufferedReader(isr) 
-        var line = br.readLine()
-        while (line != null) {
-          val spt = line.split(" ")
-          download(spt(1), spt(0) + ".mp4")
-          line = br.readLine()
+        try {
+          var line = br.readLine()
+          while (line != null) {
+            val spt = line.split(" ")
+            download(spt(1), spt(0) + ".mp4")
+            line = br.readLine()
+          }
+        } finally {
+          br.close
+          isr.close
+          fis.close
         }
     }
     
