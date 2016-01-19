@@ -21,19 +21,17 @@ object OnePiece {
   def main(args: Array[String]) {
 
     args.length match {
-      case 2 => download(args(0), args(1))
-      case _ => 
+      case 2 =>
+        time(args(1), args(0) + ".mp4")
+      case _ =>
         val fis = new FileInputStream("list")
         val isr = new InputStreamReader(fis, "UTF-8")
-        val br = new BufferedReader(isr) 
+        val br = new BufferedReader(isr)
         try {
           var line = br.readLine()
           while (line != null) {
             val spt = line.split(" ")
-            var succeed = download(spt(1), spt(0) + ".mp4")  
-            while (!succeed) {
-              succeed = download(spt(1), spt(0) + ".mp4")
-            }
+            time(spt(1), spt(0) + ".mp4")
             line = br.readLine()
           }
         } finally {
@@ -42,13 +40,23 @@ object OnePiece {
           fis.close
         }
     }
-    
+
+  }
+
+  def time(id: String, fn: String) {
+    println("Downloading " + fn)
+    val start = now
+    var succeed = download(id, fn)
+    while (!succeed) {
+      succeed = download(id, fn)
+    }
+    val diff = now.getMillis - start.getMillis
+    val sec = (diff.toDouble / 1000 % 60).toInt
+    val min = (diff.toDouble / (60 * 1000)).toInt
+    println("Download Completed - " + min + " minutes " + sec + " seconds")
   }
 
   def download(id: String, fn: String): Boolean = {
-    println("Downloading: " + fn)
-    val start = now
-    
     val httpclient = HttpClients.createDefault()
     val httpget = new HttpGet("http://api.ktkkt.com/tyyp.php?v=" + id + "&t=ck")
     val response = httpclient.execute(httpget)
@@ -65,10 +73,6 @@ object OnePiece {
         val file = new File(fn)
         val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
       })
-      val diff = now.getMillis - start.getMillis
-      val sec = (diff.toDouble / 1000 % 60).toInt
-      val min = (diff.toDouble / (60 * 1000)).toInt
-      println("Download Completed - " + min + " minutes " + sec + " seconds" )
       true
     } catch {
       case e: Exception => false
@@ -77,12 +81,12 @@ object OnePiece {
       IOUtils.closeQuietly(httpclient)
     }
   }
-  
+
   class FileDownloadResponseHandler(target: File) extends ResponseHandler[File] {
     override def handleResponse(response: HttpResponse) = {
       FileUtils.copyInputStreamToFile(response.getEntity.getContent, target)
-      
+
       target
-    } 
+    }
   }
 }
