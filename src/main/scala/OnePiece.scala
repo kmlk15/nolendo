@@ -12,6 +12,7 @@ import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.io.BufferedReader
 import scala.collection.JavaConversions
+import org.joda.time.DateTime._
 
 // File List is at : http://www.ktkkt.com/playdata/75/331.js?54924.7
 
@@ -46,6 +47,7 @@ object OnePiece {
 
   def download(id: String, fn: String): Boolean = {
     println("Downloading: " + fn)
+    val start = now
     
     val httpclient = HttpClients.createDefault()
     val httpget = new HttpGet("http://api.ktkkt.com/tyyp.php?v=" + id + "&t=ck")
@@ -63,7 +65,10 @@ object OnePiece {
         val file = new File(fn)
         val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
       })
-      println("Download Completed")
+      val diff = now.getMillis - start.getMillis
+      val sec = (diff.toDouble / 1000 % 60).toInt
+      val min = (diff.toDouble / (60 * 1000)).toInt
+      println("Download Completed - " + min + " minutes " + sec + " seconds" )
       true
     } catch {
       case e: Exception => false
