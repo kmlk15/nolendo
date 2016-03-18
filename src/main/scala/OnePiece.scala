@@ -15,6 +15,10 @@ import scala.collection.JavaConversions
 import org.joda.time.DateTime._
 
 // File List is at : http://www.ktkkt.com/playdata/75/331.js?54924.7
+// Use the string inside unescape
+// replace %u6D77%u8D3C%u738B with newline and then remove first line
+// replace %24 with whitespace
+// remove ty%23 and then remove everything from the last entry
 
 object OnePiece {
 
