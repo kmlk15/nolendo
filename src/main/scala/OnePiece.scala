@@ -62,28 +62,41 @@ object OnePiece {
 
   def download(id: String, fn: String): Boolean = {
     val httpclient = HttpClients.createDefault()
-    val httpget = new HttpGet("http://api.ktkkt.com/tyyp.php?v=" + id + "&t=ck")
-    val response = httpclient.execute(httpget)
-
     try {
-      val writer = new StringWriter
-      IOUtils.copy(response.getEntity.getContent, writer, "UTF-8")
-
-      val xml = scala.xml.XML.loadString(writer.toString)
-
-      (xml \ "video").foreach(video => {
-        val f = (video \ "file").text
-        val fileGet = new HttpGet(f);
-        val file = new File(fn)
-        val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
-      })
-      true
-    } catch {
-      case e: Exception => false
+      val f = s"http://kp.play.chshcms.com/ty.php/157/$id&s=0&c=1&b=1&p=1"
+      val fileGet = new HttpGet(f)
+      val file = new File(fn)
+      val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
     } finally {
-      response.close
       IOUtils.closeQuietly(httpclient)
     }
+    true
+
+    //    // val httpget = new HttpGet("http://api.ktkkt.com/tyyp.php?v=" + id + "&t=ck") // old version
+    //    val httpget = new HttpGet("http://api.ktkkt.com/1/mmplay.php?v=" + id + "&t=ck")
+    //    val response = httpclient.execute(httpget)
+    //
+    //    try {
+    //      val writer = new StringWriter
+    //      IOUtils.copy(response.getEntity.getContent, writer, "UTF-8")
+    //
+    //      val xml = scala.xml.XML.loadString(writer.toString)
+    //
+    //      (xml \ "video").foreach(video => {
+    //        val f = (video \ "file").text
+    //        val fileGet = new HttpGet(f);
+    //        val file = new File(fn)
+    //        val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
+    //      })
+    //      true
+    //    } catch {
+    //      case e: Exception => false
+    //    } finally {
+    //      response.close
+    //      IOUtils.closeQuietly(httpclient)
+    //    }
+
+    //    http://kp.play.chshcms.com/ty.php/157/713091722358542&s=0&c=1&b=1&p=1
   }
 
   class FileDownloadResponseHandler(target: File) extends ResponseHandler[File] {
