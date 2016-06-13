@@ -68,6 +68,8 @@ object OnePiece {
       val fileGet = new HttpGet(f)
       val file = new File(fn)
       val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
+    } catch {
+      case e: Exception => false
     } finally {
       IOUtils.closeQuietly(httpclient)
     }
