@@ -63,8 +63,8 @@ object OnePiece {
   def download(id: String, fn: String): Boolean = {
     val httpclient = HttpClients.createDefault()
     try {
-      //val f = s"http://kp.play.chshcms.com/ty.php/157/$id&s=0&c=1&b=1&p=1"
-      val f = s"http://www.zzdisk.cn/tianyi/down.php/800080044/wl/$id&s=0&c=1&b=1&p=1"
+      //val f = s"http://www.zzdisk.cn/tianyi/down.php/800080044/wl/$id&s=0&c=1&b=1&p=1"
+      val f = s"http://jaty.zzdisk.cn/index.php/down/tianyi/800080044/$id"
       val fileGet = new HttpGet(f)
       val file = new File(fn)
       val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
