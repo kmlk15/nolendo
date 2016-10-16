@@ -20,39 +20,35 @@ import org.joda.time.DateTime._
 // replace %24 with whitespace
 // remove ty%23 and then remove everything from the last entry
 
-object OnePiece {
+object Downloader {
+
+  val Extension = ".mp4"
 
   def main(args: Array[String]) {
-
-    args.length match {
-      case 2 =>
-        time(args(1), args(0) + ".mp4")
-      case _ =>
-        val fis = new FileInputStream("list")
-        val isr = new InputStreamReader(fis, "UTF-8")
-        val br = new BufferedReader(isr)
-        try {
-          var line = br.readLine()
-          while (line != null) {
-            val spt = line.split(" ")
-            time(spt(1), spt(0) + ".mp4")
-            line = br.readLine()
-          }
-        } finally {
-          br.close
-          isr.close
-          fis.close
-        }
+    val xml = if (args.length > 0) true else false
+    val fis = new FileInputStream("list")
+    val isr = new InputStreamReader(fis, "UTF-8")
+    val br = new BufferedReader(isr)
+    try {
+      var line = br.readLine()
+      while (line != null) {
+        val spt = line.split(" ")
+        time(xml, spt(1), spt(0))
+        line = br.readLine()
+      }
+    } finally {
+      br.close
+      isr.close
+      fis.close
     }
-
   }
 
-  def time(id: String, fn: String) {
-    println("Downloading " + fn)
+  def time(xml: Boolean, id: String, fn: String) {
+    println(s"Downloading $fn$Extension")
     val start = now
-    var succeed = download(id, fn)
+    var succeed = if (!xml) download(id, fn) else xmlDownload(id, fn)
     while (!succeed) {
-      succeed = download(id, fn)
+      succeed = if (!xml) download(id, fn) else xmlDownload(id, fn)
     }
     val diff = now.getMillis - start.getMillis
     val sec = (diff.toDouble / 1000 % 60).toInt
@@ -61,12 +57,13 @@ object OnePiece {
   }
 
   def download(id: String, fn: String): Boolean = {
+    println("Normal Download")
     val httpclient = HttpClients.createDefault()
     try {
       //val f = s"http://www.zzdisk.cn/tianyi/down.php/800080044/wl/$id&s=0&c=1&b=1&p=1"
       val f = s"http://jaty.zzdisk.cn/index.php/down/tianyi/800080044/$id"
       val fileGet = new HttpGet(f)
-      val file = new File(fn)
+      val file = new File(s"$fn$Extension")
       val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
     } catch {
       case e: Exception => false
@@ -74,32 +71,37 @@ object OnePiece {
       IOUtils.closeQuietly(httpclient)
     }
     true
+  }
 
-    //    // val httpget = new HttpGet("http://api.ktkkt.com/tyyp.php?v=" + id + "&t=ck") // old version
-    //    val httpget = new HttpGet("http://api.ktkkt.com/1/mmplay.php?v=" + id + "&t=ck")
-    //    val response = httpclient.execute(httpget)
-    //
-    //    try {
-    //      val writer = new StringWriter
-    //      IOUtils.copy(response.getEntity.getContent, writer, "UTF-8")
-    //
-    //      val xml = scala.xml.XML.loadString(writer.toString)
-    //
-    //      (xml \ "video").foreach(video => {
-    //        val f = (video \ "file").text
-    //        val fileGet = new HttpGet(f);
-    //        val file = new File(fn)
-    //        val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
-    //      })
-    //      true
-    //    } catch {
-    //      case e: Exception => false
-    //    } finally {
-    //      response.close
-    //      IOUtils.closeQuietly(httpclient)
-    //    }
+  def xmlDownload(id: String, fn: String): Boolean = {
+    println("XML Download")
+    val httpclient = HttpClients.createDefault()
+    val httpget = new HttpGet(s"http://www.ktkkt.com/mdparse/url.php?xml=$id&type=acfun&hd=gq&wap=0&siteuser=123&s=2&c=0&p=1&v=80&b=1")
 
-    //    http://kp.play.chshcms.com/ty.php/157/713091722358542&s=0&c=1&b=1&p=1
+    val response = httpclient.execute(httpget)
+
+    try {
+      val writer = new StringWriter
+      IOUtils.copy(response.getEntity.getContent, writer, "UTF-8")
+
+      val xml = scala.xml.XML.loadString(writer.toString)
+
+      (xml \ "video").zipWithIndex.foreach {
+        case (video, index) => {
+          val f = (video \ "file").text
+          val fileGet = new HttpGet(f);
+          val file = new File(s"$fn-$index$Extension")
+          val fileResponse = httpclient.execute(fileGet, new FileDownloadResponseHandler(file))
+        }
+      }
+      true
+    } catch {
+      case e: Exception => false
+    } finally {
+      response.close
+      IOUtils.closeQuietly(httpclient)
+    }
+    true
   }
 
   class FileDownloadResponseHandler(target: File) extends ResponseHandler[File] {
