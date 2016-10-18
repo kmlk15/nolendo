@@ -16,6 +16,7 @@ object Joiner {
         prefix
       })
       val sorted = group.sortWith((a: String, b: String) => a.split('-').last.toInt < b.split('-').last.toInt).map(n => s"$n.ts")
+      
       println(s"./ffmpeg -i 'concat:${sorted.mkString("|")}' -c copy -bsf:a aac_adtstoasc $k.mp4")
       println("sleep 1")
       println(s"rm -rf ${sorted.mkString(" ")}")
