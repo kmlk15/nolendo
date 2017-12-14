@@ -1,1 +1,1 @@
-java -jar downloader.jar true
+java -jar downloader.jar xml true

@@ -25,8 +25,8 @@ object Downloader {
   val Extension = ".mp4"
 
   def main(args: Array[String]) {
-    val xml = if (args.length > 0) true else false
-    val fis = new FileInputStream("list")
+    val xml = if (args.length > 1) true else false
+    val fis = new FileInputStream(args(0))
     val isr = new InputStreamReader(fis, "UTF-8")
     val br = new BufferedReader(isr)
     try {
@@ -76,7 +76,7 @@ object Downloader {
   def xmlDownload(id: String, fn: String): Boolean = {
     println("XML Download")
     val httpclient = HttpClients.createDefault()
-    val httpget = new HttpGet(s"http://www.ktkkt.com/mdparse/url.php?xml=$id&type=acfun&hd=gq&wap=0&siteuser=123&s=2&c=0&p=1&v=80&b=1")
+    val httpget = new HttpGet(s"http://www.ktkkt.com/mdparse/url.php?xml=$id&type=acfun&hd=gq&wap=0&siteuser=123&s=2&c=0&p=1&v=80&b=1&md5=49c72dff681c905f158e7506b9984abd")
 
     val response = httpclient.execute(httpget)
 

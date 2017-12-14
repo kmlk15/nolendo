@@ -1,1 +1,1 @@
-java -jar downloader.jar 
+java -jar downloader.jar list
