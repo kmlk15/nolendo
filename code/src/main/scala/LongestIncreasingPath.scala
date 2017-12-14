@@ -16,8 +16,8 @@ object LongestIncreasingPath {
   
   def doit(m: Array[Array[Int]]): Int = {
     var max = 0
-    for (i <- 0 until m.length) {
-      for (j <- 0 until m(i).length) {
+    for (i <- m.indices) {
+      for (j <- m(i).indices) {
         val c = walk(m, i, j, m(i)(j), 1)
         if (c > max) {
           max = c
