@@ -19,7 +19,7 @@ object Cake {
   }
 
   def max(input: List[(Int, Int)], cap: Int, cur: Int) {
-    if (cap < 0 || input.length == 0) {
+    if (cap < 0 || input.isEmpty) {
       return
     }
     if (cur > value) {

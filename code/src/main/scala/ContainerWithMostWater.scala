@@ -16,7 +16,7 @@ object ContainerWithMostWater {
     var b = 0
     var max = 0
     
-    for (i <- 0 until input.size - 1) {
+    for (i <- 0 until input.length - 1) {
       val c = Math.min(input(i), input(i+1))
       if (c > max) {
         a = input(i)

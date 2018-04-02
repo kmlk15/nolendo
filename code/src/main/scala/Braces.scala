@@ -14,11 +14,11 @@ object Braces {
   }
   
   def check(str: String): Boolean = {
-    var stack = Stack[Char]()
+    val stack = Stack[Char]()
     
     var result = true
     
-    str.toCharArray().foreach(c => {
+    str.toCharArray.foreach(c => {
       if (c == '(' || c == '{' || c == '[') {
         stack.push(c)
       } else {

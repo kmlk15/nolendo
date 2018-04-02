@@ -23,12 +23,9 @@ object Balloon {
       if (current > max) 
         max = current
     } else {
-      for (i <- 0 until input.length) {
+      for (i <- input.toSeq.indices) {
         val (s, e) = input.splitAt(i)
-        val n = e.length > 1 match {
-          case true => s ++ e.tail
-          case _ => s
-        }
+        val n = if (e.length > 1) s ++ e.tail else s
         var c = input(i)
         if (i < input.length - 1) {
           c = c * input(i + 1)

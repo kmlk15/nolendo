@@ -18,7 +18,7 @@ object BinaryTreeLevelOrder {
   def printTree(node: Node) {
     curr = curr :+ node
 
-    while (curr.length > 0) {
+    while (curr.nonEmpty) {
       curr.foreach(i => {
         if (i.left != null)
           next = next :+ i.left
