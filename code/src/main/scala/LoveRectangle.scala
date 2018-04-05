@@ -1,9 +1,5 @@
+object LoveRectangle {
 
-
-/**
- * @author kmlk15
- */
-object LoveRetangle {
   def main(args: Array[String]) {
     
     println(findLove(Retangle(1, 5, 10, 4), Retangle(3, 7, 15, 11)))
@@ -41,12 +37,11 @@ object LoveRetangle {
       case _ => Retangle(x, y, w, h)
     }
   }
-  
-  
+
+  case class Retangle(x: Int, y: Int, w: Int, h: Int) {
+
+    override def toString = s"X: $x, Y: $y, W: $w, H: $h"
+
+  }
 }
 
-case class Retangle(x: Int, y: Int, w: Int, h: Int) { 
-  
-  override def toString = s"X: $x, Y: $y, W: $w, H: $h"
-  
-}
