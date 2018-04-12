@@ -42,7 +42,7 @@ object LargestNumberAtLeastTwiceOfOthers {
         val t = x
         x = i
         y = t
-      } else if (y > -1 && input(i) > input(y)) {
+      } else if (input(i) > input(y)) {
         y = i
       }
     }
